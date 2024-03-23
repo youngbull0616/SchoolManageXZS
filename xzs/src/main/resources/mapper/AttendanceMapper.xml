@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.AttendanceMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.Attendance">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="classroomName" jdbcType="VARCHAR" property="classroomName" />
+    <result column="userName" jdbcType="VARCHAR" property="userName" />
+    <result column="startTime" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="endTime" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="aStatus" jdbcType="INTEGER" property="aStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, classroomName, userName, startTime, endTime,aStatus
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_attendance
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_attendance
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mindskip.xzs.domain.Attendance" useGeneratedKeys="true" keyProperty="id">
+    insert into t_attendance (id, classroomName, userName , startTime, endTime, aStatus)
+    values (#{id,jdbcType=INTEGER}, #{classroomName,jdbcType=VARCHAR},#{userName,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{aStatus,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.Attendance" useGeneratedKeys="true" keyProperty="id">
+    insert into t_attendance
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="classroomName != null">
+        classroomName,
+      </if>
+      <if test="userName != null">
+        userName,
+      </if>
+      <if test="startTime != null">
+        startTime,
+      </if>
+      <if test="endTime != null">
+        endTime,
+      </if>
+      <if test="aStatus != null">
+        aStatus,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="classroomName != null">
+        #{classroomName,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="aStatus != null">
+        #{aStatus,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="insertSubmit" parameterType="com.mindskip.xzs.domain.Attendance">
+    <!-- 插入考勤记录 -->
+    INSERT INTO t_attendance (classroomName, userName, startTime, endTime)
+    VALUES (#{classroomName}, #{userName}, #{startTime}, #{endTime});
+
+    <!-- 更新教室的 hasNum 字段 -->
+    UPDATE t_classroom
+    SET hasNum = hasNum + 1
+    WHERE name = #{classroomName};
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.Attendance">
+    update t_attendance
+    <set>
+      <if test="classroomName != null">
+        classroomName = #{classroomName,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        userName = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        startTime = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        endTime = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="aStatus != null">
+        aStatus = #{aStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.mindskip.xzs.domain.Attendance">
+    update t_attendance
+    set classroomName = #{classroomName,jdbcType=VARCHAR},
+        userName = #{userName,jdbcType=VARCHAR},
+        startTime = #{startTime,jdbcType=TIMESTAMP},
+        endTime = #{endTime,jdbcType=TIMESTAMP},
+        aStatus = #{aStatus,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="changeStatusById" parameterType="java.lang.Integer">
+    UPDATE t_attendance
+    SET aStatus =
+          CASE
+            WHEN aStatus = 0 THEN 1
+            WHEN aStatus = 1 THEN 2
+            WHEN aStatus = 2 THEN 0
+            ELSE aStatus
+            END
+    WHERE id = #{id}
+  </update>
+
+
+
+
+
+  <select id="getAllAttendance" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from t_attendance
+  </select>
+
+  <select id="page" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.attendance.AttendancePageRequestVM">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM t_attendance
+    <where>
+      <if test="id != null ">
+        and id= #{id}
+      </if>
+    </where>
+  </select>
+
+</mapper>
